@@ -26,4 +26,4 @@ snp_df = pd.read_csv(snp_file)
 snp_df.to_sql("snp_table", sql.connect("snp.db"), if_exists="replace")
 consnp = sql.connect("snp.db")
 snp_df = pd.read_sql_query('SELECT STRFTIME("%Y-%m", Date) AS FDate, MAX(Close) AS maxclose FROM snp_table GROUP BY FDate HAVING FDate >= "1954-07"', consnp)
-snp_df
+#snp_df

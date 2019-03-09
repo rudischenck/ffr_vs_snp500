@@ -4,13 +4,20 @@ import sqlite3 as sql
 import seaborn as sb
 
 
+def dataframedb(csvfile, tablename, dbname, querystring):
+    df = pd.read_csv(csvfile)
+    df.to_sql(tablename, sql.connect(dbname), if_exists="replace")
+    con = sql.connect(dbname)
+    return pd.read_sql_query(querystring, con)
+
+
 #%%
 ff_file = "FEDFUNDS.csv"
-ff_df = pd.read_csv(ff_file)
-ff_df.to_sql("ff_table", sql.connect("ff.db"), if_exists="replace")
-conff = sql.connect("ff.db")
-ff_df = pd.read_sql_query('SELECT STRFTIME("%Y-%m", "DATE") AS FDate, FEDFUNDS FROM ff_table', conff)
-#ff_df
+query = 'SELECT STRFTIME("%Y-%m", "DATE") AS FDate, FEDFUNDS FROM ff_table'
+fftablename = "ff_table"
+ffdbname = "ff.db"
+ff_df = dataframedb(ff_file, fftablename, ffdbname, query)
+ff_df
 
 #%%
 gdp_file = "A191RL1Q225SBEA.csv"

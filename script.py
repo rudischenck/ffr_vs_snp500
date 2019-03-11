@@ -1,7 +1,10 @@
 #%%
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import sqlite3 as sql
-import seaborn as sb
+import seaborn as sns
+sns.set(style='darkgrid')
 
 
 def dataframedb(csvfile, tablename, dbname, querystring):
@@ -12,25 +15,47 @@ def dataframedb(csvfile, tablename, dbname, querystring):
 
 
 #%%
-ff_file = "FEDFUNDS.csv"
-query = 'SELECT STRFTIME("%Y-%m", "DATE") AS FDate, FEDFUNDS FROM ff_table'
-fftablename = "ff_table"
-ffdbname = "ff.db"
-ff_df = dataframedb(ff_file, fftablename, ffdbname, query)
-ff_df
+fftuple = ("FEDFUNDS.csv",
+           "ff_table",
+           "ff.db",
+           'SELECT STRFTIME("%Y-%m", "DATE") AS FDate, FEDFUNDS FROM ff_table'
+           )
+ff_df = dataframedb(*fftuple)
+#ff_df
 
 #%%
-gdp_file = "A191RL1Q225SBEA.csv"
-gdp_df = pd.read_csv(gdp_file)
-gdp_df.to_sql("gdp_table", sql.connect("gdp.db"), if_exists="replace")
-congdp = sql.connect("gdp.db")
-gdp_df = pd.read_sql_query('SELECT STRFTIME("%Y-%m", "DATE") AS FDate, GDP FROM gdp_table WHERE FDate >= "1954-07"', congdp)
+gdptuple = ("A191RL1Q225SBEA.csv",
+            "gdp_table",
+            "gdp.db",
+            'SELECT STRFTIME("%Y-%m", "DATE") AS FDate, GDP FROM gdp_table WHERE FDate >= "1954-07"'
+            )
+gdp_df = dataframedb(*gdptuple)
 #gdp_df
 
 #%%
-snp_file = "^GSPC.csv"
-snp_df = pd.read_csv(snp_file)
-snp_df.to_sql("snp_table", sql.connect("snp.db"), if_exists="replace")
-consnp = sql.connect("snp.db")
-snp_df = pd.read_sql_query('SELECT STRFTIME("%Y-%m", Date) AS FDate, MAX(Close) AS maxclose FROM snp_table GROUP BY FDate HAVING FDate >= "1954-07"', consnp)
+snp_tuple = ("^GSPC.csv",
+             "snp_table",
+             "snp.db",
+             'SELECT STRFTIME("%Y-%m", Date) AS FDate, MAX(Close) AS maxclose FROM snp_table GROUP BY FDate HAVING FDate >= "1954-07"'
+             )
+snp_df = dataframedb(*snp_tuple)
 #snp_df
+
+#%%
+gdp_df['FDate'] = pd.to_datetime(gdp_df['FDate'], infer_datetime_format=True)
+#gdp_df
+#%%
+g = sns.relplot(x="FDate", y="GDP", kind="line", data=gdp_df)
+g.fig.autofmt_xdate()
+#%%
+snp_df['FDate'] = pd.to_datetime(snp_df['FDate'], infer_datetime_format=True)
+g = sns.relplot(x="FDate", y="maxclose", kind="line", data=snp_df)
+g.fig.autofmt_xdate()
+#%%
+ff_df['FDate'] = pd.to_datetime(ff_df['FDate'], infer_datetime_format=True)
+g = sns.relplot(x='FDate', y='FEDFUNDS', kind="line", data=ff_df)
+g.fig.autofmt_xdate()
+#%%
+df = pd.merge(snp_df, ff_df, on="FDate")
+g = sns.relplot(x='FDate', y="FEDFUNDS", hue="maxclose", kind="line", data=df)
+g.fig.autofmt_xdate()

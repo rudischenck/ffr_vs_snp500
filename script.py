@@ -39,7 +39,11 @@ snp_tuple = ("^GSPC.csv",
              'SELECT STRFTIME("%Y-%m", Date) AS FDate, MAX(Close) AS maxclose FROM snp_table GROUP BY FDate HAVING FDate >= "1954-07"'
              )
 snp_df = dataframedb(*snp_tuple)
-#snp_df
+snp_pc_df = pd.DataFrame({
+    'FDate': snp_df['FDate'],
+    'Percent Change': snp_df['maxclose'].pct_change() * 100
+})
+snp_pc_df
 
 #%%
 gdp_df['FDate'] = pd.to_datetime(gdp_df['FDate'], infer_datetime_format=True)
@@ -54,6 +58,10 @@ g.fig.autofmt_xdate()
 #%%
 ff_df['FDate'] = pd.to_datetime(ff_df['FDate'], infer_datetime_format=True)
 g = sns.relplot(x='FDate', y='FEDFUNDS', kind="line", data=ff_df)
+g.fig.autofmt_xdate()
+#%%
+snp_pc_df['FDate'] = pd.to_datetime(snp_pc_df['FDate'], infer_datetime_format=True)
+g = sns.relplot(x='FDate', y='Percent Change', kind='line', data=snp_pc_df)
 g.fig.autofmt_xdate()
 #%%
 df = pd.merge(snp_df, ff_df, on="FDate")

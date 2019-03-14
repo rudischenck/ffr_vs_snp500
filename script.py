@@ -57,6 +57,8 @@ ff_df.drop(ff_df.index[0], inplace=True)
 combined = pd.concat([snp_pc_df, gdp_df, ff_df], sort=False)
 combined['FDate'] = pd.to_datetime(combined['FDate'], infer_datetime_format=True)
 df_combined = combined.groupby("FDate").mean()
+df_combined['GDP'].bfill(limit=2, inplace=True)
+df_combined
 
 #%%
 gdp_df['FDate'] = pd.to_datetime(gdp_df['FDate'], infer_datetime_format=True)

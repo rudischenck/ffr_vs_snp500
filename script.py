@@ -5,7 +5,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import sqlite3 as sql
 import seaborn as sns
+import scipy
+from scipy.stats import linregress
 sns.set(style='darkgrid')
+
+from IPython.core.interactiveshell import InteractiveShell
+InteractiveShell.ast_node_interactivity = "all"
 
 
 def dataframedb(csvfile, tablename, dbname, querystring):
@@ -56,28 +61,27 @@ gdp_df.drop(gdp_df.index[0], inplace=True)
 ff_df.drop(ff_df.index[0], inplace=True)
 combined = pd.concat([snp_pc_df, gdp_df, ff_df], sort=False)
 combined['FDate'] = pd.to_datetime(combined['FDate'], infer_datetime_format=True)
-df_combined = combined.groupby("FDate").mean()
+df_combined = combined.groupby("FDate", as_index=False).mean()
 df_combined['GDP'].bfill(limit=2, inplace=True)
+df_combined.dropna(inplace=True)
 df_combined
+#%%
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+ax1 = sns.regplot(x='GDP', y='FEDFUNDS', data=df_combined, ax=ax1)
+ax2 = sns.regplot(x='Percent Change', y='FEDFUNDS', data=df_combined, ax=ax2)
+x = df_combined['GDP']
+y = df_combined['FEDFUNDS']
+linregress(x,y)
 
+x = df_combined['Percent Change']
+y = df_combined['FEDFUNDS']
+linregress(x,y)
 #%%
-gdp_df['FDate'] = pd.to_datetime(gdp_df['FDate'], infer_datetime_format=True)
-#gdp_df
-#%%
-g = sns.relplot(x="FDate", y="GDP", kind="line", data=gdp_df)
-g.fig.autofmt_xdate()
-#%%
-snp_df['FDate'] = pd.to_datetime(snp_df['FDate'], infer_datetime_format=True)
-g = sns.relplot(x="FDate", y="maxclose", kind="line", data=snp_df)
-g.fig.autofmt_xdate()
-#%%
-ff_df['FDate'] = pd.to_datetime(ff_df['FDate'], infer_datetime_format=True)
-g = sns.relplot(x='FDate', y='FEDFUNDS', kind="line", data=ff_df)
-g.fig.autofmt_xdate()
-#%%
-snp_pc_df['FDate'] = pd.to_datetime(snp_pc_df['FDate'], infer_datetime_format=True)
-g = sns.relplot(x='FDate', y='Percent Change', kind='line', data=snp_pc_df)
-g.fig.autofmt_xdate()
-#%%
-sns.regplot(x='GDP', y='FEDFUNDS', data=df_combined)
-#sns.regplot(x='GDP', y='Percent Change', data=df_combined)
+sns.relplot(x='FDate', y='FEDFUNDS', kind='line', data=df_combined)
+sns.relplot(x='FDate', y='GDP', kind='line', data=df_combined)
+sns.relplot(x='FDate', y='Percent Change', kind='line', data=df_combined)
+fig, ax = plt.subplots(figsize=(20,10))
+plt.plot('FDate', 'FEDFUNDS', data=df_combined)
+plt.plot('FDate', 'GDP', data=df_combined)
+plt.plot('FDate', 'Percent Change', data=df_combined)
+ax.legend()

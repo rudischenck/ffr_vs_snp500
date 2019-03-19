@@ -20,6 +20,17 @@ def dataframedb(csvfile, tablename, dbname, querystring):
     return pd.read_sql_query(querystring, con)
 
 
+def linregresshelp(data):
+    x = data['GDP']
+    y = data['FEDFUNDS']
+    linregress(x,y)
+
+    x = data['Percent Change']
+    y = data['FEDFUNDS']
+    linregress(x,y)
+
+
+
 #%%
 # Federal Funds Dataframe, SQL
 fftuple = ("FEDFUNDS.csv",
@@ -28,7 +39,6 @@ fftuple = ("FEDFUNDS.csv",
            'SELECT STRFTIME("%Y-%m", "DATE") AS FDate, FEDFUNDS FROM ff_table'
            )
 ff_df = dataframedb(*fftuple)
-#ff_df.dtypes
 
 #%%
 # GDP Dataframe, SQL
@@ -38,7 +48,6 @@ gdptuple = ("A191RL1Q225SBEA.csv",
             'SELECT STRFTIME("%Y-%m", "DATE") AS FDate, GDP FROM gdp_table WHERE FDate >= "1954-07"'
             )
 gdp_df = dataframedb(*gdptuple)
-#gdp_df
 
 #%%
 # SNP 500 Dataframe, SQL
@@ -54,7 +63,6 @@ snp_pc_df = pd.DataFrame({
     'Percent Change': snp_df['maxclose'].pct_change() * 100
 })
 snp_pc_df.drop(snp_pc_df.index[0], inplace=True)
-#snp_pc_df.dtypes
 #%%
 # Combine Dataframes
 gdp_df.drop(gdp_df.index[0], inplace=True)
@@ -62,13 +70,16 @@ ff_df.drop(ff_df.index[0], inplace=True)
 combined = pd.concat([snp_pc_df, gdp_df, ff_df], sort=False)
 combined['FDate'] = pd.to_datetime(combined['FDate'], infer_datetime_format=True)
 df_combined = combined.groupby("FDate", as_index=False).mean()
+# Backfill GDP
 df_combined['GDP'].bfill(limit=2, inplace=True)
 df_combined.dropna(inplace=True)
-df_combined
+#df_combined
 #%%
+# Linear Regression Plots
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
 ax1 = sns.regplot(x='GDP', y='FEDFUNDS', data=df_combined, ax=ax1)
 ax2 = sns.regplot(x='Percent Change', y='FEDFUNDS', data=df_combined, ax=ax2)
+# Linear Regression Data
 x = df_combined['GDP']
 y = df_combined['FEDFUNDS']
 linregress(x,y)
@@ -77,6 +88,7 @@ x = df_combined['Percent Change']
 y = df_combined['FEDFUNDS']
 linregress(x,y)
 #%%
+# Line Plots
 sns.relplot(x='FDate', y='FEDFUNDS', kind='line', data=df_combined)
 sns.relplot(x='FDate', y='GDP', kind='line', data=df_combined)
 sns.relplot(x='FDate', y='Percent Change', kind='line', data=df_combined)
@@ -85,3 +97,21 @@ plt.plot('FDate', 'FEDFUNDS', data=df_combined)
 plt.plot('FDate', 'GDP', data=df_combined)
 plt.plot('FDate', 'Percent Change', data=df_combined)
 ax.legend()
+#%%
+# Data per fed chairman
+df_combined_martin = df_combined['FDate'] < '1970-02-01'
+df_combined_martin = df_combined[df_combined_martin]
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+ax1 = sns.regplot(x='GDP', y='FEDFUNDS', data=df_combined_martin, ax=ax1)
+ax2 = sns.regplot(x='Percent Change', y='FEDFUNDS', data=df_combined_martin, ax=ax2)
+linregresshelp(df_combined_martin)
+#df_combined_martin
+#%%
+df_combined_burns = df_combined[(df_combined['FDate'] >= '1970-01-01') & (df_combined['FDate'] <= '1978-01-31')]
+df_combined_burns
+#%%
+testdf = pd.DataFrame.from_dict(df_combined.loc[1:, 'FEDFUNDS'])
+testdf = testdf.reindex(range(0, len(testdf) - 1))
+testdf = testdf.shift(-1)
+testdf2 = df_combined['Percent Change']
+testdf.join(testdf2)

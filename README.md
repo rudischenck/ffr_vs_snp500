@@ -38,13 +38,13 @@ The datasets used and associated links:
 
 ### Dependencies
 
-Python
-SQLite3
-Numpy
-Pandas
-Seaborn
-Scipy
-Matplotlib
+- Python
+- SQLite3
+- Numpy
+- Pandas
+- Seaborn
+- Scipy
+- Matplotlib
 
 ### Execution
 

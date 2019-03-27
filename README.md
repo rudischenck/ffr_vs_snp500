@@ -27,3 +27,25 @@ The Federal Reserve is *much* more likely to cut rates after a GDP decline than 
 Initially, this project asked the question- "does the relationship between the FFR and the S&P 500 ever deviate from the relationship between the FFR and GDP?" The answer is most definitely yes, and it is part of a trend that started 20 years ago. Although it might not be an intuitive relationship, the trend of the last 20 years is that the stock market and FFR are positively correlated.
 
 To be frank, I am not sure that my observation or the manner in which I analyzed the data is meaningless or not.
+
+### Data
+
+The datasets used and associated links:
+
+- [Federal Funds Rate](https://fred.stlouisfed.org/series/FEDFUNDS)
+- [GDP](https://fred.stlouisfed.org/series/A191RL1Q225SBEA)
+- [S&P 500](https://fred.stlouisfed.org/series/SP500)
+
+### Dependencies
+
+Python
+SQLite3
+Numpy
+Pandas
+Seaborn
+Scipy
+Matplotlib
+
+### Execution
+
+To run the project open ffr_vs_snp500.ipynb and select kernel -> restart and run all.

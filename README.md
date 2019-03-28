@@ -12,7 +12,7 @@ In this project, I will be analyzing the data using the following methods:
 - A Linear Regression between FFR and GDP, and FFR and S&P 500 (month over month % change).
 - Linear regression between FFR and GDP, FFR and S&P 500 per fed chairman.
 - Conditional probability of rate decrease given S&P 500 decrease.
-- Conditional probability of rate decrease given S&P 500 decrease.
+- Conditional probability of rate decrease given GDP decrease.
 
 ### Observations
 
@@ -48,4 +48,4 @@ The datasets used and associated links:
 
 ### Execution
 
-To run the project open ffr_vs_snp500.ipynb and select kernel -> restart and run all.
+To run the project open ffr_vs_snp500.ipynb with jupyter notebook and select kernel -> restart and run all.
